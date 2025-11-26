@@ -43,10 +43,9 @@ def gpmf2gpx(gpmf_blob:bytes) -> GPXTrack:
     track = GPXTrack()
     gpx_segments = [gpmfgpx.gpx_segment for gpmfgpx in gpmfdata if gpmfgpx.strm_type == "GPS9"]
     if len(gpx_segments) == 0:
-        logger.warning("No GPS9 data found in GPMF stream.")
         gpx_segments = [gpmfgpx.gpx_segment for gpmfgpx in gpmfdata if gpmfgpx.strm_type == "GPS5"]
     if len(gpx_segments) == 0:
-        logger.warning("No GPS5 data found in GPMF stream.")
+        logger.warning("No GPS9 or GPS5 data found in GPMF stream.")
         exit(1)
 
     segment = merge_segments(gpx_segments)
