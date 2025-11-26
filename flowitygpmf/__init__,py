@@ -10,3 +10,10 @@ from .gpmf2gpx import extract_gpx_track, extract_dir_all
 from .mergegpx import merge_dir
 
 
+__all__ = [
+    "extract_gpx_track",
+    "extract_dir_all",
+    "merge_dir",
+]
+
+
