@@ -1,4 +1,4 @@
-from pygpmf.t import KLVItem, KLVLength
+from flowitygpmf.t import KLVItem, KLVLength
 import struct, logging
 
 

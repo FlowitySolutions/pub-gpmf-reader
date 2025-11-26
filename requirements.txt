@@ -1,0 +1,4 @@
+gpxpy>=1.6.2
+numpy>=1.19.5
+ffmpeg-python>=0.2.0
+

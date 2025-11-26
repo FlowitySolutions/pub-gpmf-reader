@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flowitygpmf"
+version = "0.1.0"
+description = "Extract and merge GPX telemetry from GoPro videos (GPMF) into GPX tracks."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [ { name = "Karl" } ]
+keywords = ["gpx", "gopro", "gpmf", "telemetry", "gps"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent"
+]
+dependencies = [
+  "gpxpy>=1.6.2",
+  "numpy>=1.19.5",
+  "ffmpeg-python>=0.2.0"
+]
+
+[project.scripts]
+# Unified CLI providing subcommands: `extract`, `merge`.
+# Usage examples:
+#   flowitygpmf extract /path/to/mp4dir
+#   flowitygpmf merge /path/to/gpxdir --optimize
+flowitygpmf = "flowitygpmf.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["flowitygpmf*"]
+exclude = ["tests*", "video*"]
+
+

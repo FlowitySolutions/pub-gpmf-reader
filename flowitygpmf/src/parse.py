@@ -1,9 +1,10 @@
 
 import ffmpeg, logging, numpy, struct
 
-from pygpmf.t import *
-from pygpmf.helpers import ceil4, KLMReader
-from pygpmf.endec import GPMFData
+from flowitygpmf.src.e import ProbeError
+from flowitygpmf.t import *
+from flowitygpmf.src.helpers import ceil4, KLMReader
+from flowitygpmf.src.endec import GPMFData
 from gpxpy.gpx import GPXTrackSegment, GPXTrackPoint, GPX, GPXTrack
 
 logger = logging.getLogger(__name__)
@@ -12,6 +13,10 @@ logger = logging.getLogger(__name__)
 
 def gpmf2gpx(gpmf_blob:bytes) -> GPXTrack:
     """ Convert GPMF data to GPX Track """
+
+
+    def _log_gopro_meta(gpmf:list[GPMFData]):
+        pass       
 
     
     gpmf = gpmf_blob
@@ -31,6 +36,10 @@ def gpmf2gpx(gpmf_blob:bytes) -> GPXTrack:
         return merged
 
     gpmfdata = [GPMFData(klv) for klv in strm_klvs.values()]
+    video_meta = GPMFData.get_embedded_video_metadata(gpmfdata)
+    for k, v in video_meta.items():
+        logger.info(f"Video Metadata: {k} = {v}")
+
     track = GPXTrack()
     gpx_segments = [gpmfgpx.gpx_segment for gpmfgpx in gpmfdata if gpmfgpx.strm_type == "GPS9"]
     if len(gpx_segments) == 0:
@@ -48,7 +57,20 @@ def gpmf2gpx(gpmf_blob:bytes) -> GPXTrack:
 
 def find_gpmf_stream(fname):
     """ Find the reference to the GPMF Stream in the video file """
-    probe = ffmpeg.probe(fname)
+    try:
+        probe = ffmpeg.probe(fname)
+    except ffmpeg.Error as e:
+        logger.error(f"ffmpeg probe error for file {fname}: {e.stderr.decode()}")
+
+        errlines = e.stderr.decode().splitlines()
+        err = f"""ffmpeg probe error for file {fname}
+        {errlines[-2]}
+        {errlines[-1]}
+
+        No streams could be found in the file.
+        """
+
+        raise ProbeError(f"{err}") from e
 
     for s in probe["streams"]:
         logger.debug(f"Stream: {s['index']} - {s['codec_tag_string']}")

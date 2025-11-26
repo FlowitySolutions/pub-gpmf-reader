@@ -1,8 +1,8 @@
 import logging
 import struct, numpy
 from datetime import datetime, timedelta
-from pygpmf.t import KLVItem, KLVLength, TYPE_CONV
-from pygpmf.helpers import ceil4
+from flowitygpmf.t import KLVItem, KLVLength, TYPE_CONV
+from flowitygpmf.src.helpers import ceil4
 from typing import Any, Callable, Dict, NamedTuple
 from gpxpy.gpx import GPXTrackPoint, GPXTrackSegment
 from xml.etree import ElementTree as ET
@@ -31,7 +31,32 @@ class GPMFData:
 
   def __init__(self, strm:dict[str, KLVItem]):
     self._strm = strm.copy()
+    if (logging.getLogger().isEnabledFor(logging.DEBUG)):
+      self._log_header()
 
+  def _log_header(self):
+    logging.debug(f"GPMFData {self.strm_type} with keys: {list(self._strm.keys())}")
+    for klv in self._strm.values():
+      logging.debug(f"  {klv.key} - {klv.length} - {klv.value[:16].decode('utf-8', 'replace')} ...")
+
+  @staticmethod
+  def get_embedded_video_metadata(gpmfstreams:list['GPMFData']) -> Dict[str, Any]:
+    DVID = None
+    DVNM = None
+
+    for dat in gpmfstreams:
+      strm = dat._strm
+      if not (DVID or DVNM):
+        if "DVNM" in strm: # Assume DVID aswell
+          DVID = int.from_bytes(strm["DVID"].value, "big")
+          DVNM = strm["DVNM"].value.decode("latin-1")
+          break
+
+    return {
+      "Device ID": DVID,
+      "Device Name": DVNM
+    }
+  
   def __str__(self):
     
       s = f"\nGPMF -:{self.strm_type}:- ::::::::::::::::::::::::::::::"
