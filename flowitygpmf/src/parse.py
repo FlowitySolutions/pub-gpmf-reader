@@ -1,7 +1,6 @@
 
 import ffmpeg, logging, numpy, struct
 
-from flowitygpmf.src.e import ProbeError
 from flowitygpmf.t import *
 from flowitygpmf.src.helpers import ceil4, KLMReader
 from flowitygpmf.src.endec import GPMFData
@@ -56,22 +55,22 @@ def gpmf2gpx(gpmf_blob:bytes) -> GPXTrack:
 
 def find_gpmf_stream(fname):
     """ Find the reference to the GPMF Stream in the video file """
+    streams = []
     try:
         probe = ffmpeg.probe(fname)
+        streams = probe.get("streams", [])
     except ffmpeg.Error as e:
-        logger.error(f"ffmpeg probe error for file {fname}: {e.stderr.decode()}")
+        # logger.error(f"ffmpeg probe error for file {fname}: {e.stderr.decode()}")
 
         errlines = e.stderr.decode().splitlines()
         err = f"""ffmpeg probe error for file {fname}
-        {errlines[-2]}
-        {errlines[-1]}
-
-        No streams could be found in the file.
+        ffmpeg::err {errlines[-2]}
+        ffmpeg::err {errlines[-1]}
         """
+        logger.error(f"{err}")
+        
 
-        raise ProbeError(f"{err}") from e
-
-    for s in probe["streams"]:
+    for s in streams:
         logger.debug(f"Stream: {s['index']} - {s['codec_tag_string']}")
         if s["codec_tag_string"] == "gpmd":
             logger.debug(f"gpmd stream: {s}")

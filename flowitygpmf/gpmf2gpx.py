@@ -5,29 +5,17 @@ be exposed via an entry point.
 """
 from __future__ import annotations
 
-import argparse
 import logging
 import os
 
 from flowitygpmf.src import parse
+from gpxpy.gpx import GPX, GPXTrack
 
 logger = logging.getLogger(__name__)
+from pathlib import Path
 
 
-
-def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(
-        description="Extract GPMF data from GoPro .MP4 files in a directory into individual GPX files (per input video)."
-    )
-    p.add_argument(
-        "wkdir",
-        type=str,
-        help="Directory containing .MP4 files (each will produce one .gpx in an 'outputs' subfolder).",
-    )
-    return p
-
-
-def extract_all(target_dir: str) -> list[str]:
+def extract_dir_all(target_dir: str) -> list[str]:
     """Extract all MP4 telemetry in ``target_dir``.
 
     Returns a list of written GPX file paths.
@@ -58,23 +46,34 @@ def extract_all(target_dir: str) -> list[str]:
     return written
 
 
-def main(argv: list[str] | None = None) -> int:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s :: %(levelname)s :: %(name)s :: %(message)s",
-    )
-    parser = build_parser()
-    args = parser.parse_args(argv)
-    try:
-        written = extract_all(args.wkdir)
-    except Exception as e:  # noqa: BLE001 - surface any extraction issue
-        logger.exception("Extraction failed: %s", e)
-        return 2
-    if not written:
-        logger.warning("No GPX files produced.")
-        return 1
-    return 0
+def extract_gpx_track(mp4_path: str | Path) -> GPXTrack:
+    """Extract GPS telemetry from a GoPro MP4 file as a GPXTrack object.
 
+    Parameters
+    ----------
+    mp4_path : str | Path
+        Path to the GoPro MP4 file.
 
-if __name__ == "__main__":  # pragma: no cover
-    raise SystemExit(main())
+    Returns
+    -------
+    GPXTrack
+        A gpxpy GPXTrack containing the GPS data.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the MP4 file does not exist.
+    ValueError
+        If no GPMF stream is found in the file.
+    """
+    mp4_path = Path(mp4_path)
+    if not mp4_path.exists():
+        raise FileNotFoundError(f"File not found: {mp4_path}")
+
+    stream_info = parse.find_gpmf_stream(str(mp4_path))
+    if not stream_info:
+        raise ValueError(f"No GPMF stream found in {mp4_path}")
+
+    gpmf_data = parse.extract_gpmf_stream(str(mp4_path), stream_info)
+    track = parse.gpmf2gpx(gpmf_data)
+    return track

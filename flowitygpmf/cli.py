@@ -15,7 +15,7 @@ import os
 from typing import List
 
 from . import mergegpx
-from .gpmf2gpx import extract_all as extract_all_videos
+from .gpmf2gpx import extract_dir_all
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ def _cmd_extract(wkdir: str) -> int:
         logger.error("Directory not found: %s", wkdir)
         return 1
     try:
-        written = extract_all_videos(wkdir)
+        written = extract_dir_all(wkdir)
     except Exception as e:  # noqa: BLE001
         logger.exception("Extraction failed: %s", e)
         return 2
@@ -84,7 +84,7 @@ def _cmd_merge(wkdir: str, optimize: bool) -> int:
         logger.error("Directory not found: %s", wkdir)
         return 1
     try:
-        output_path = mergegpx.merge(wkdir, optimize=optimize)
+        output_path = mergegpx.merge_dir(wkdir, optimize=optimize)
     except Exception as e:  # noqa: BLE001
         logger.exception("Failed merging GPX files: %s", e)
         return 2

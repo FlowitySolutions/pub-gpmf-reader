@@ -1,7 +1,0 @@
-
-
-
-
-
-class ProbeError(Exception):
-    pass

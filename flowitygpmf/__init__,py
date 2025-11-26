@@ -1,0 +1,12 @@
+import logging
+
+
+# Prevent "No handler found" warnings when used as a library.
+# Applications using this package can configure logging as they see fit.
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+
+
+from .gpmf2gpx import extract_gpx_track, extract_dir_all
+from .mergegpx import merge_dir
+
+
