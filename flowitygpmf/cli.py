@@ -101,6 +101,7 @@ def main(argv: List[str] | None = None) -> int:
         level=getattr(logging, args.log_level, logging.WARNING),
         format="%(asctime)s :: %(levelname)s :: %(message)s",
     )
+    logging.debug("Starting gpmfreader with args: %s", args)
     if args.command == "extract":
         return _cmd_extract(args.wkdir)
     if args.command == "merge":

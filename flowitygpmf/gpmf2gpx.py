@@ -23,7 +23,7 @@ def extract_dir_all(target_dir: str) -> list[str]:
     if not os.path.isdir(target_dir):
         raise FileNotFoundError(f"Directory not found: {target_dir}")
 
-    mp4_files = sorted(f for f in os.listdir(target_dir) if f.lower().endswith(".mp4"))
+    mp4_files = sorted(f for f in os.listdir(target_dir) if (f.lower().endswith(".mp4") or f.lower().endswith(".360")))
     written: list[str] = []
     outdir = os.path.join(target_dir, "outputs")
     os.makedirs(outdir, exist_ok=True)
