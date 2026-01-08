@@ -14,7 +14,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/ - excluded, needed for Dart
 lib64/
 parts/
 sdist/
@@ -24,6 +24,10 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+# Dart/Flutter
+dart_gpmf/.dart_tool/
+dart_gpmf/pubspec.lock
 
 # Virtual Environments
 venv/
