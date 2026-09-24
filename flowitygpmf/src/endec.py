@@ -130,7 +130,7 @@ class GPMFData:
     SCAL = numpy.frombuffer(SCAL.value, ">i")
 
     GPS9 = self._strm.get("GPS9")
-    typing = TYPE.replace("l", "I")
+    typing = TYPE.replace("l", "i")
     typing = typing.replace("S", "H")
     samples = []
     for r in range(GPS9.length.repeat):
